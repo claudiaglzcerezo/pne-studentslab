@@ -4,8 +4,9 @@ series = str(a) + " " + str(b)
 i = 2
 while i < 11:
         c = a + b
-        series = series + str(c)
+        series = series + " " + str(c)
         a = b
         b = c
         i = i + 1
-print(series)
+
+print("Series;", series)
