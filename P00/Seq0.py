@@ -14,16 +14,28 @@ def  seq_len(seq):
     folder = "sequences/"
     seq_contents = Path(folder + seq).read_text()
     split_content = seq_contents.split("\n")
-    result = ("".join(split_content[1:-1]))
+    result = "".join(split_content[1:-1])
     return len(result)
 
 def seq_count_base(seq, base):
     folder = "sequences/"
     seq_contents = Path(folder + seq).read_text()
     split_content = seq_contents.split("\n")
-    result = ("".join(split_content[1:-1]))
+    result = "".join(split_content[1:-1])
     count = 0
-    for base in result:
-        count = count + 1
+    for character in result:
+        if character == base:
+            count = count + 1
     return count
+def seq_count(seq):
+    folder = "sequences/"
+    seq_contents = Path(folder + seq).read_text()
+    split_content = seq_contents.split("\n")
+    result = "".join(split_content[1:-1])
+    bases_count = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
+    for nucleotide in result:
+        if nucleotide in bases_count:
+            bases_count[nucleotide] += 1
+    return bases_count
+
 
