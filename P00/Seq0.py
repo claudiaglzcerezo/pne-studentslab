@@ -27,6 +27,7 @@ def seq_count_base(seq, base):
         if character == base:
             count = count + 1
     return count
+
 def seq_count(seq):
     folder = "sequences/"
     seq_contents = Path(folder + seq).read_text()
@@ -46,12 +47,14 @@ def seq_reverse(seq, n):
     fragment = result[:n]
     reverse = fragment[::-1]
     return fragment, reverse
+
 def complement_fragment(fragment):
     comp_dict = {'A':'T', 'T':'A', 'G':'C', 'C':'G'}
     complement = ""
     for base in fragment:
         complement += comp_dict[base]
     return complement
+
 def frequent_base(counts):
     max_base = ""
     max_count = -1
