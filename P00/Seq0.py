@@ -38,4 +38,26 @@ def seq_count(seq):
             bases_count[nucleotide] += 1
     return bases_count
 
+def seq_reverse(seq, n):
+    folder = "sequences/"
+    seq_contents = Path(folder + seq).read_text()
+    split_content = seq_contents.split("\n")
+    result = "".join(split_content[1:-1])
+    fragment = result[:n]
+    reverse = fragment[::-1]
+    return fragment, reverse
+def complement_fragment(fragment):
+    comp_dict = {'A':'T', 'T':'A', 'G':'C', 'C':'G'}
+    complement = ""
+    for base in fragment:
+        complement += comp_dict[base]
+    return complement
+def frequent_base(counts):
+    max_base = ""
+    max_count = -1
+    for base, count in counts.items():
+        if count > max_count:
+            max_count = count
+            max_base = base
+    return max_base
 
