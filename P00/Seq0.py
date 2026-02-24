@@ -8,7 +8,7 @@ def seq_read_fasta(filename):
     file_contents = Path(folder + filename).read_text()
     split_content = file_contents.split("\n")
     result = "".join(split_content[1:-1])
-    print(result[:20])
+    return (result[:20])
 
 def  seq_len(seq):
     folder = "sequences/"
