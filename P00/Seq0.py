@@ -48,10 +48,10 @@ def seq_reverse(seq, n):
     reverse = fragment[::-1]
     return fragment, reverse
 
-def complement_fragment(fragment):
+def seq_complement(seq):
     comp_dict = {'A':'T', 'T':'A', 'G':'C', 'C':'G'}
     complement = ""
-    for base in fragment:
+    for base in seq:
         complement += comp_dict[base]
     return complement
 
