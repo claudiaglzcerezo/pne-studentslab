@@ -28,3 +28,23 @@ class Seq:
         if self.strbases in ["NULL", "ERROR"]:
             return 0
         return self.strbases.count(base)
+    def count_dict(self):
+        bases_count = {'A': 0, 'T': 0, 'C': 0, 'G': 0}
+        if self.strbases in ["NULL", "ERROR"]:
+            return bases_count
+        for nucleotide in self.strbases:
+            if nucleotide in bases_count:
+                bases_count[nucleotide] += 1
+        return bases_count
+    def reverse(self):
+        if self.strbases in ["NULL", "ERROR"]:
+            return self.strbases
+        return self.strbases[::-1]
+    def complement(self):
+        if self.strbases in ["NULL", "ERROR"]:
+            return self.strbases
+        comp_dict = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
+        complement = ""
+        for base in self.strbases:
+            complement += comp_dict[base]
+        return complement
