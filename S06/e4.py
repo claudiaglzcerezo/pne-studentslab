@@ -26,10 +26,10 @@ class Seq:
         """Calculate the length of the sequence"""
         return len(self.strbases)
 
-def print_seqs(seq_l) :
-    i = 1
+def print_seqs(seq_l, color) :
+    i = 0
     for sequence in seq_l:
-        print(f"Index {i} --> Lenght {sequence.len()} --> {sequence}")
+        print(termcolor.colored(f"Index {i} --> Lenght {sequence.len()} --> {sequence}", color))
         i = i + 1
 
 def generate_seqs(pattern, number):
@@ -45,10 +45,9 @@ def generate_seqs(pattern, number):
 seq_list1 = generate_seqs("A", 3)
 seq_list2 = generate_seqs("AC", 5)
 
-
-termcolor.cprint("List 1:")
-print_seqs(seq_list1)
+termcolor.cprint("List 1", "blue")
+print_seqs(seq_list1, "blue")
 
 print()
-rermcolor.cprint("List 2:")
-print_seqs(seq_list2)
+termcolor.cprint("List 2", "green")
+print_seqs(seq_list2, "green")
