@@ -1,5 +1,5 @@
 from Seq1 import Seq
-gen_list = ["FRAT1", "U5", "ADA", "FXN"]
+gen_list = ["FRAT1", "U5", "ADA", "FXN", "RNU6_269P"]
 print("-----| Practice 1, Exercise 10 |------")
 for gen in gen_list:
     s = Seq()
