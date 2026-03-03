@@ -48,3 +48,29 @@ class Seq:
         for base in self.strbases:
             complement += comp_dict[base]
         return complement
+    def read_fasta(self, filename):
+        from pathlib import Path
+        folder = "sequences/"
+        file_path = folder + filename
+        try:
+            file_content = Path(file_path).read_text()
+            lines = file_content.splitlines()
+            sequence_lines = lines[1:-1]
+            self.strbases = "".join(sequence_lines)
+            print(f"Sequence read from {filename}")
+        except FileNotFoundError:
+            print(f"ERROR: File {filename} not found in {folder}")
+            self.strbases = "ERROR"
+        except Exception as e:
+            print(f"ERROR: {e}")
+            self.strbases = "ERROR"
+
+    def frequent_base(self):
+        counts = self.count_dict()
+        max_base = ""
+        max_count = -1
+        for base, count in counts.items():
+            if count > max_count:
+                max_count = count
+                max_base = base
+        return max_base
