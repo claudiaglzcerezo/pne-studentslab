@@ -55,7 +55,7 @@ class Seq:
         try:
             file_content = Path(file_path).read_text()
             lines = file_content.splitlines()
-            sequence_lines = lines[1:-1]
+            sequence_lines = lines[1:]
             self.strbases = "".join(sequence_lines)
             print(f"Sequence read from {filename}")
         except FileNotFoundError:
