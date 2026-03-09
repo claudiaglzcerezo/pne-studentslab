@@ -4,7 +4,7 @@ from Seq2 import Seq
 PRACTICE = 2
 EXERCISE = 6
 print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
-IP = "212.128.254.54"
+IP = "127.0.0.1"
 PORT1 = 8080
 PORT2 = 8081
 c1 = Client(IP, PORT1)
