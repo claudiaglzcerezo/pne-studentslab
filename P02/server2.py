@@ -22,9 +22,8 @@ try:
 
         m = "Hello from the teacher's server\n"
         send_bytes = str.encode(m)
-                # We must write bytes, not a string
-                clientsocket.send(send_bytes)
-                clientsocket.close()
+        clientsocket.send(send_bytes)
+        clientsocket.close()
 
 except socket.error:
     print("Problems using ip {} port {}. Is the IP correct? Do you have port permission?".format(IP, PORT))
