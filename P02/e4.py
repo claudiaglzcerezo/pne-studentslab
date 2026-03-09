@@ -7,7 +7,7 @@ print(f"-----| Practice {PRACTICE}, Exercise {EXERCISE} |------")
 IP = "127.0.0.1"
 PORT = 8080
 c = Client(IP, PORT)
-gen_list = ["FRAT1", "U5", "ADA", "FXN", "RNU6_269P"]
+gen_list = ["FRAT1", "U5", "ADA"]
 for gene in gen_list:
     s = Seq()
     filename = gene + ".txt"

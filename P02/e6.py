@@ -22,15 +22,13 @@ for i in range(10):
     fragments.append(fragment)
 print(f"Sending  fragments to the server")
 
-for i, fragment in enumerate(fragments, 1):
-    print(f"Fragment {i}: {fragment}")
 
 response1 = c1.talk("Sending FRAT1 Gene to the server, in fragments of 10 bases")
 response2 = c2.talk("Sending FRAT1 Gene to the server, in fragments of 10 bases")
 print(f"Response: {response1}")
 print(f"Response: {response2}")
 for i, fragment in enumerate(fragments, 1):
-    fragment_msg = f"Fragment {i + 1}: {fragment}"
+    fragment_msg = f"Fragment {i}: {fragment}"
     if i % 2 == 1:
         response1 = c1.talk(fragment_msg)
         print(f"Response: {response1}")
