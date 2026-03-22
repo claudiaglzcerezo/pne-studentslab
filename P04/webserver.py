@@ -15,18 +15,19 @@ def process_client(s):
     req_line = lines[0]
     path = req_line.split('')[1]
     termcolor.cprint(f"Request: {req_line}", "green")
-    paths = {"/info/A": "html/info/A.html", "/info/C": "html/info/C.html", "/info/G": "html/info/G.html", "/info/T": "html/info/T.html"}
+    paths = {"/": "html/index.html", "/info/A": "html/info/A.html", "/info/C": "html/info/C.html", "/info/G": "html/info/G.html", "/info/T": "html/info/T.html"}
 
-    if path == paths:
+    if path in paths:
         status = "HTTP/1.1200 Ok\n"
         file_to_open = paths[path]
     else:
         status = "HTTP/1.1404 Not Found\n"
         file_to_open = "html/error.html"
+
     with open(file_to_open, "r") as f:
         body = f.read()
 
-    header = f"Content-Type: text/html\nContent-Lenght:{len(body)}\n\n"
+    header = f"Content-Type: text/html\n"
     header += f"Content-Length: {len(body)}\n"
     cs.send((status + header + "\n" + body).encode())
 # -------------- MAIN PROGRAM
