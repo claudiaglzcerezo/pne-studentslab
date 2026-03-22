@@ -1,12 +1,8 @@
 import socket
 import termcolor
-
-
 # -- Server network parameters
 IP = "127.0.0.1"
 PORT = 8080
-
-
 def process_client(s):
     req_raw = s.recv(2000)
     req = req_raw.decode()
@@ -22,24 +18,23 @@ def process_client(s):
         "/info/G": "html/info/G.html",
         "/info/T": "html/info/T.html"
     }
-
     if path in paths:
         status = "HTTP/1.1 200 Ok\n"
         file_to_open = paths[path]
     else:
         status = "HTTP/1.1 404 Not Found\n"
         file_to_open = "html/error.html"
-
     with open(file_to_open, "r") as f:
         body = f.read()
-
     header = f"Content-Type: text/html\n"
     header += f"Content-Length: {len(body)}\n\n"
     response = status + header + body
     cs.send(response.encode())
-# -------------- MAIN PROGRAM
-# ------ Configure the server
-# -- Listening socket
+    # -------------- MAIN PROGRAM
+    # ------ Configure the server
+    # -- Listening socket
+
+
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 ls.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 # -- Setup up the socket's IP and PORT
