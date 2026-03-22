@@ -6,12 +6,7 @@ def process_client(cs):
     req = cs.recv(2000).decode()
     path = req.split('\n')[0].split('')[1]
     termcolor.cprint(f"Request: {path}", "green")
-    paths = {
-        "/info/A": "html/info/A.html",
-        "/info/C": "html/info/C.html",
-        "/info/G": "html/info/G.html",
-        "/info/T": "html/info/T.html"
-    }
+    paths = {"/info/A": "html/info/A.html", "/info/C": "html/info/C.html", "/info/G": "html/info/G.html", "/info/T": "html/info/T.html"}
     if path == paths:
         with open(paths[path], "r") as f:
             body = f.read()
