@@ -34,8 +34,9 @@ def process_client(s):
         body = f.read()
 
     header = f"Content-Type: text/html\n"
-    header += f"Content-Length: {len(body)}\n"
-    cs.send((status + header + "\n" + body).encode())
+    header += f"Content-Length: {len(body)}\n\n"
+    response = status + header + body
+    cs.send(response.encode())
 # -------------- MAIN PROGRAM
 # ------ Configure the server
 # -- Listening socket
