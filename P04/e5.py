@@ -8,10 +8,10 @@ def process_client(cs):
     termcolor.cprint(f"Request: {path}", "green")
     paths = {"/info/A": "html/info/A.html", "/info/C": "html/info/C.html", "/info/G": "html/info/G.html", "/info/T": "html/info/T.html"}
     if path == paths:
-        status = "HTTP/1.1200 Ok\n"
+        status = "HTTP/1.1 200 Ok\n"
         file_to_open = paths[path]
     else:
-        status = "HTTP/1.1404 Not Found\n"
+        status = "HTTP/1.1 404 Not Found\n"
         file_to_open = "html/error.html"
     with open(file_to_open, "r") as f:
         body = f.read()

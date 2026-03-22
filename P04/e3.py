@@ -12,7 +12,7 @@ def process_client(cs):
             body = f.read()
     else:
         body = ""
-    header = f"HTTP/1.1200 Ok\nContent-Type: text/html\nContent-Lenght:{len(body)}\n\n"
+    header = f"HTTP/1.1 200 Ok\nContent-Type: text/html\nContent-Lenght:{len(body)}\n\n"
     cs.send((header + body).encode())
 
 ls = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
