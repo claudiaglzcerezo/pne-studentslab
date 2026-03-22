@@ -13,7 +13,7 @@ def process_client(s):
     # -- Split the request messages into lines
     lines = req.split('\n')
     req_line = lines[0]
-    path = req_line.split('')[1]
+    path = req_line.split(' ')[1]
     termcolor.cprint(f"Request: {req_line}", "green")
     paths = {
         "/": "html/index.html",
@@ -24,10 +24,10 @@ def process_client(s):
     }
 
     if path in paths:
-        status = "HTTP/1.1200 Ok\n"
+        status = "HTTP/1.1 200 Ok\n"
         file_to_open = paths[path]
     else:
-        status = "HTTP/1.1404 Not Found\n"
+        status = "HTTP/1.1 404 Not Found\n"
         file_to_open = "html/error.html"
 
     with open(file_to_open, "r") as f:
