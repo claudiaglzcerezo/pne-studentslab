@@ -23,7 +23,7 @@ def process_client(s):
         file_to_open = paths[path]
     else:
         status = "HTTP/1.1 404 Not Found\n"
-        file_to_open = "html/error.html"
+        file_to_open = "error.html"
     with open(file_to_open, "r") as f:
         body = f.read()
     header = f"Content-Type: text/html\n"
