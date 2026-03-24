@@ -14,7 +14,7 @@ class NumberGuesser:
     def guess(self, number):
         self.attempts.append(number)
         if number == self.secret_number:
-            return f"You won after{len(sel.attempts)} attempts"
+            return f"You won after{len(self.attempts)} attempts"
         elif number < self.secret_number:
             return "Higher"
         else:
@@ -22,15 +22,28 @@ class NumberGuesser:
 
 
 while True:
-
     try:
         (cs, addr) = ls.accept()
         game = NumberGuesser()
+        playing = True
+        while playing:
+            msg_raw = cs.recv(2048)
+            msg = msg_raw.decode().strip().split(" ")
+            if not msg:
+                playing = False
+            else:
+                try:
+                    num = int(msg)
+                    answer = game.guess(num)
+                    cs.send(answer.encode())
+                    if "You won" in answer:
+                        playing = False
+                except ValueError:
+                    r = "Invalid number"
+                    cs.send(r.encode())
+            cs.close()
     except KeyboardInterrupt:
         ls.close()
         exit()
-    else:
 
-        msg_raw = cs.recv(2048)
-        msg = msg_raw.decode().strip().split(" ")
 
