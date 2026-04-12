@@ -24,6 +24,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             # Para cualquier otra cosa (ej: /info/A.html), le añadimos "html" delante
             filepath = "html" + self.path
 
+            if not filepath.endswith(".html"):
+                filepath += ".html"
+
         # 2. Para cmprobar si el archivo solicitado existe en nuestro disco
         if os.path.exists(filepath) and os.path.isfile(filepath):
             # --- EL ARCHIVO EXISTE ---
