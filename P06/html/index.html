@@ -1,23 +1,72 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title> SEQ2 server </title>
+    <title>Seq 2 Server</title>
 </head>
 <body>
-  <h1>Access to the Server</h1>
-    <form action="ping" method="get">
-      <p>Is the server alive?<input type="submit" value="PING"></p>
-    </form>
-  <hr>
+    <h1>SEQ2 server</h1>
+    <p>Access to the Server</p>
+    <hr>
 
-    <form action="/get" method="get">
-      <p>Get a sequence. Select sequence
-        <label for="seq_id">Sequence Index:</label>
-        <input type="number" name="id" id="seq_id" min="0" max="4" value="0">
-        <button type="submit">Get Sequence</button>
-        <input type="submit" value="GET"></p>
-    </form>
+    <p>
+        Is the server alive?
+        <form action="ping" method="get" style="display:inline;">
+            <input type="submit" value="PING">
+        </form>
+    </p>
 
+    <hr>
+
+    <p>
+        Get a Sequence. Select sequence number
+        <form action="get" method="get" style="display:inline;">
+            <select name="n">
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+            </select>
+            <input type="submit" value="GET">
+        </form>
+    </p>
+
+    <hr>
+
+    <p>
+        Get a Gene. Select the name
+        <form action="gene" method="get" style="display:inline;">
+            <select name="g">
+                <option value="U5">U5</option>
+                <option value="ADA">ADA</option>
+                <option value="FRAT1">FRAT1</option>
+                <option value="FXN">FXN</option>
+                <option value="RNU6_269P">RNU6_269P</option>
+            </select>
+            <input type="submit" value="GENE">
+        </form>
+    </p>
+
+    <hr>
+
+    <p>
+        Write a sequence:
+        <form action="operation" method="get" style="display:inline;">
+            <input type="text" name="seq" required>
+            <br>
+            Select operation:
+            <input type="radio" name="op" value="1" checked> Info
+            <input type="radio" name="op" value="2"> Comp
+            <input type="radio" name="op" value="3"> Rev
+
+            <br>
+
+            Perform operation:
+            <input type="submit" value="OPERATE!">
+        </form>
+    </p>
+
+    <hr>
 
 </body>
 </html>
