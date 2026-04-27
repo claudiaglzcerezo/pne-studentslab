@@ -18,5 +18,5 @@ print(f"Response received!: {r1.status} {r1.reason}\n")
 data = json.loads(r1.read().decode("utf-8"))
 
 print(f"Gene: MIR633")
-print(f"Description: {data['desc']}")
-print(f"Bases: {data['seq']}")
+print(f"Description: {data['desc']}") #desc is for the info
+print(f"Bases: {data['seq']}") #sequence
