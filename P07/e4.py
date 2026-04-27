@@ -2,7 +2,6 @@ import http.client
 import json
 
 
-# Implementación de la clase Seq para los cálculos
 class Seq:
     def __init__(self, sequence):
         self.str_seq = sequence
