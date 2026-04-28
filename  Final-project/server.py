@@ -1,133 +1,59 @@
+import http.client
+import http.server
+import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import urlparse, parse_qs
 import jinja2 as j
 from pathlib import Path
 import os
 
-PORT = 8080
-# Jinja
+class Seq:
+    def list_species(self):
+server = "rest.ensembl.org"
+endpoint = f"/info/species"
+params = "?content-type=application/json"
 
-env = j.Environment(loader=j.FileSystemLoader("html"))
-path = "http://rest.ensembl.org/documentation/info/species"
-class SeqHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
-        print(f"Requested path: {path}")
-
-
-
-        elif path == "/":
-            html = read_html_file("index.html")
-            self.send_response(200)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(html.encode())
+conn = http.client.HTTPSConnection(server)
+conn.request("GET", endpoint + params)
+res = conn.getresponse()
+print(f"Response received!: {res.status} {res.reason}")
+data = json.loads(res.read().decode("utf-8"))
+s = Seq(data['seq'])
 
 
-        elif path == "/get":
-            query = parse_qs(parsed_path.query)
-            if "n" in query:
-                try:
-                    n = int(query["n"][0])
-                    if 0 <= n <= 4:
-                        sequence = SEQUENCES[n]
-                        html = read_html_file("get.html", {"sequence": sequence,"n": n})
-                        self.send_response(200)
-                        self.send_header("Content-type", "text/html")
-                        self.end_headers()
-                        self.wfile.write(html.encode())
-                    else:
-                        raise ValueError
-                except:
-                    self.send_error(400, "Invalid sequence number")
-            else:
-                self.send_error(400, "Missing parameter n")
+    def length(self):
+        for b in bases:
+            count = self.str_seq.count(b)
+            stats[b] = (count, (count / length) * 100 if length > 0 else 0)
+            if count > max_count:
+                max_count = count
+                most_frequent = b
+        return length, stats, most_frequent
 
 
-        elif path == "/gene":
-            query = parse_qs(parsed_path.query)
-            if "g" in query:
-                try:
-                    g = query["g"][0]
-                    if g in GENES:
-                        file_path = os.path.join("sequences", f"{g}.txt")
-                        with open(file_path, "r") as f:
-                            sequence = "".join(line.strip()for line in f if not line.startswith(">"))
+if gene_name in GENES:
+    server = "rest.ensembl.org"
+    endpoint = f"/info/species/"
+    params = "/info/species?content-type=application/json"
 
-                        gene = "\n".join(sequence[i:i + 60] for i in range(0, len(sequence), 60))
-                        html = read_html_file("gene.html", {"gene_name": g,"gene": gene})
-                        self.send_response(200)
-                        self.send_header("Content-type", "text/html")
-                        self.end_headers()
-                        self.wfile.write(html.encode())
-                    else:
-                        raise ValueError
-                except:
-                    self.send_error(400, "Not valid gene")
-            else:
-                self.send_error(400, "Missing parameter g")
+    conn = http.client.HTTPSConnection(server)
+    conn.request("GET", endpoint + params)
+    res = conn.getresponse()
 
+    print(f"Server: {server}")
+    print(f"URL: {server}{endpoint}{params}")
+    print(f"Response received!: {res.status} {res.reason}")
 
-        elif path == "/operation":
-            query = parse_qs(parsed_path.query)
-            if "seq" in query and "op" in query:
-                seq = query["seq"][0].upper()
-                op = query["op"][0]
-                if not all(base in "ATCG" for base in seq):
-                    html = read_html_file("error.html")
-                    self.send_response(400)
-                    self.send_header("Content-type", "text/html")
-                    self.end_headers()
-                    self.wfile.write(html.encode())
-                    return
-                try:
-                    if op == "1":
-                        total = len(seq)
+    data = json.loads(res.read().decode("utf-8"))
+    s = Seq(data['seq'])
+    total_len, stats, top_base = s.get_stats()
 
-                        countA = seq.count("A")
-                        countC = seq.count("C")
-                        countG = seq.count("G")
-                        countT = seq.count("T")
-
-                        result = (
-                            f"Total length: {total}<br>"
-                            f"A: {countA} ({countA / total * 100:.1f}%)<br>"
-                            f"C: {countC} ({countC / total * 100:.1f}%)<br>"
-                            f"G: {countG} ({countG / total * 100:.1f}%)<br>"
-                            f"T: {countT} ({countT / total * 100:.1f}%)"
-                        )
-                    elif op == "2":
-                        comp = {"A": "T", "T": "A", "C": "G", "G": "C"}
-                        result = "".join(comp[b] for b in seq)
-                    elif op == "3":
-                        result = seq[::-1]
-                    else:
-                        raise ValueError
-                    html = read_html_file("operation.html", {"sequence": seq,"result": result,"operation": op})
-                    self.send_response(200)
-                    self.send_header("Content-type", "text/html")
-                    self.end_headers()
-                    self.wfile.write(html.encode())
-                except:
-                    self.send_error(400, "Invalid operation")
-            else:
-                self.send_error(400, "Missing parameters")
-
-
-        else:
-            html = read_html_file("error.html")
-            self.send_response(404)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-            self.wfile.write(html.encode())
-
-if __name__ == "__main__":
-    server = HTTPServer(("", PORT), SeqHandler)
-    print(f"Server running on http://localhost:{PORT}")
-
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        print("\nServer stopped")
-        server.server_close()
+    print(f"\nGene: {gene_name}")
+    print(f"Description: {data['desc']}")
+    print("New sequence created!")
+    print(f"Total length: {total_len}")
+    for base, (count, perc) in stats.items():
+        print(f"{base}: {count} ({perc:.1f}%)")
+    print(f"Most frequent Base: {top_base}")
+else:
+    print("Gene not found in dictionary.")
