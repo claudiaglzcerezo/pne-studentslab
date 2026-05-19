@@ -122,7 +122,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if is_json:
                     contents = json.dumps(dic_len)
                 else:
-                    contents = f"Length: {length}"
+                    contents = f"The length of the chromosome is: {length}"
 
             # #MEDIUM LEVEL
 
