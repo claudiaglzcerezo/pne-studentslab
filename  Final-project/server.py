@@ -3,6 +3,7 @@ import socketserver
 import urllib.parse
 import http.client
 import json
+from pathlib import Path
 
 PORT = 8080
 SERVER = "rest.ensembl.org"
@@ -247,58 +248,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
 
-            elif path == "/geneList":
-                chromo = arguments["chromo"][0]
-                start = arguments["start"][0]
-                end = arguments["end"][0]
 
-                # Consultamos la API de Ensembl para la región en humanos
-                # Agregamos feature=gene para traer solo los genes de la región
-                ENDPOINT = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}{PARAMS}&feature=gene"
 
-                conn = http.client.HTTPSConnection(SERVER)
-                conn.request("GET", ENDPOINT)
-                response = conn.getresponse()
-                gene_data = json.loads(response.read().decode())
-                conn.close()
 
-                # Extraemos los nombres de manera única sin usar dict.fromkeys
-                unique_genes = []
-                seen = set()
-
-                for item in gene_data:
-                    # Obtenemos el nombre del gen (o el ID si no tiene nombre)
-                    name = item.get("external_name") or item.get("id")
-
-                    if name and name not in seen:
-                        seen.add(name)
-                        unique_genes.append(name)
-
-                dic_gene_list = {
-                    "chromosome": chromo,
-                    "start": start,
-                    "end": end,
-                    "genes": unique_genes,
-                }
-
-                if is_json:
-                    contents = json.dumps(dic_gene_list)
-                else:
-                    contents = (
-                            f"<h2>Genes in region {chromo}:{start}-{end}:</h2>"
-                            f"<ul>"
-                            + "".join([f"<li>{g}</li>" for g in unique_genes])
-                            + "</ul>"
-                    )
-        except Exception as e:
-            status = 500
-            contents = f"<h1>Error detectado en el Servidor:</h1><p>{str(e)}</p>"
-            self.send_response(status)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write(bytes(contents, "utf-8"))
-
-        # GESTIÓN GLOBAL DE ERRORES (ERROR.HTML)
+        except Exception:
+            status = 404
+            contents = Path('html/error.html').read_text()
 
 
 # ARRANQUE DEL SERVIDOR

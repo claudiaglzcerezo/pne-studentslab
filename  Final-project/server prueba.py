@@ -3,7 +3,7 @@ import http.server
 import json
 import socketserver
 import urllib.parse
-
+from pathlib import Path
 PORT = 8080
 SERVER = "rest.ensembl.org"
 PARAMS = "?content-type=application/json"
@@ -188,79 +188,53 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     else f"<p>{dic_info['id']}</p>"
                 )
 
-            elif path == "/geneCalc":
-                gene = arguments["gene"][0].upper()
-                gene_id = self.get_id(arguments)
-                if not gene_id:
-                    raise Exception()
-                conn = http.client.HTTPSConnection(SERVER)
-                conn.request(
-                    "GET",
-                    f"/sequence/id/{gene_id}{PARAMS}",
-                    headers={"Content-Type": "application/json"},
-                )
-                d = json.loads(conn.getresponse().read().decode())
-                conn.close()
-
-                sequence = d.get("seq", "")
-                clean_seq = "".join(sequence.split()).upper()
-                total = len(clean_seq)
-                counts = {
-                    "A": clean_seq.count("A"),
-                    "C": clean_seq.count("C"),
-                    "G": clean_seq.count("G"),
-                    "T": clean_seq.count("T"),
-                }
-                contents = (
-                    json.dumps({"gene": gene, "length": total, "seq_count": counts})
-                    if is_json
-                    else f"<p>Length: {total}</p>"
-                )
-
-                # 8) ENDPOINT: GENE LIST (Desglose detallado de atributos de Ensembl)
             elif path == "/geneList":
-                chromo = arguments["chromo"][0]
-                start = arguments["start"][0]
-                end = arguments["end"][0]
+                try:
+                    chromo = arguments["chromo"][0]
+                    start = arguments["start"][0]
+                    end = arguments["end"][0]
 
-                ENDPOINT = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}{PARAMS}&feature=gene"
-                conn = http.client.HTTPSConnection(SERVER)
-                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
-                gene_data = json.loads(conn.getresponse().read().decode())
-                conn.close()
+                    # URL con los parámetros y features idénticos a los de tu amiga
+                    ENDPOINT = f"/overlap/region/human/{chromo}:{start}-{end}?feature=gene;feature=transcript;feature=cds;feature=exon;"
 
-                unique_genes = []
-                seen = set()
+                    conn = http.client.HTTPSConnection(SERVER)
+                    conn.request("GET", ENDPOINT + "content-type=application/json")
+                    response = conn.getresponse()
 
-                # Extraemos los IDs de los genes de forma segura
-                for item in gene_data:
-                    gene_id = item.get("id")
-                    if gene_id and gene_id not in seen:
-                        seen.add(gene_id)
-                        unique_genes.append(gene_id)
+                    lst = json.loads(response.read().decode())
+                    conn.close()
 
-                # Diccionario limpio que necesita tu cliente
-                dic_gene_list = {
-                    "chromosome": chromo,
-                    "start": int(start),
-                    "end": int(end),
-                    "genes": unique_genes,
-                }
+                    region = ""
+                    region_lst = []
 
-                if is_json:
-                    contents = json.dumps(dic_gene_list)
-                else:
-                    # Formato web limpio: si hay genes los pinta en una lista, si no, avisa
-                    if unique_genes:
-                        contents = "<h2>Genes found in region:</h2><ul>" + "".join(
-                            [f"<li>{g}</li>" for g in unique_genes]) + "</ul>"
+                    # Bucle 'for' de la foto de tu amiga
+                    for gene in lst:
+                        gene_id = gene.get("id") or gene.get("gene_id")
+                        if not gene_id:
+                            continue
+
+                        name = self.get_name(gene_id)
+                        str_gene = f"{name} ({gene_id})"
+
+                        region += f"<li>{str_gene}</li>"
+                        region_lst.append(str_gene)
+
+                    if "json" in arguments:
+                        contents = json.dumps({
+                            "chromo": chromo,
+                            "start": start,
+                            "end": end,
+                            "region": region_lst
+                        })
                     else:
-                        contents = "<h2>No genes found in this region.</h2>"
+                        if region_lst:
+                            contents = f"<h2>Genes found in region:</h2><ul>{region}</ul>"
+                        else:
+                            contents = "<h2>No genes found in this region.</h2>"
 
-            else:
-                status = 404
-                contents = "Not Found"
-
+                except Exception:
+                    status = 404
+                    contents = Path('html/error.html').read_text()
         except Exception as e:
             status = 500
             contents = f"Error: {str(e)}"
