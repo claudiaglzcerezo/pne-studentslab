@@ -125,7 +125,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 sequence = d.get("seq", "")
                 contents = json.dumps({"gene": gene, "seq": sequence}) if is_json else f"<p>{sequence}</p>"
 
-            # 6) GENE INFO (ARREGLADO PARA IMPRIMIR TODO EN LA WEB)
+            # 6) GENE INFO
             elif path == "/geneInfo":
                 gene = arguments["gene"][0].upper()
                 gene_id = self.get_id(arguments)
@@ -155,7 +155,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if is_json:
                     contents = json.dumps(dic_info)
                 else:
-                    # Formato web exacto solicitado
+
                     contents = (
                         f"<h2>Return information about a human gene:</h2>"
                         f"<ul>"
@@ -167,7 +167,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"</ul>"
                     )
 
-            # 7) GENE CALC (ARREGLADO PARA IMPRIMIR TODO EN LA WEB)
+            # 7) GENE CALC
             elif path == "/geneCalc":
                 gene = arguments["gene"][0].upper()
                 gene_id = self.get_id(arguments)
@@ -204,7 +204,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if is_json:
                     contents = json.dumps(dic_calc)
                 else:
-                    # Formato web exacto solicitado con porcentajes
                     contents = (
                         f"<h2>Performs some calculations on the provided human gene returning the total length and the percentage of all the bases:</h2>"
                         f"<ul>"
@@ -217,7 +216,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     )
 
             # 8) ENDPOINT: GENE LIST
-                    # 8) ENDPOINT: GENE LIST (Formateado para mostrar Nombre e ID en el Navegador)
             elif path == "/geneList":
                 chromo = arguments["chromo"][0]
                 start = arguments["start"][0]
@@ -239,19 +237,18 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         seen.add(gene_id)
                         unique_genes.append(gene_id)
 
-                        # Extraemos el nombre común si existe (ej: CDKN2A)
+
                         name = item.get("external_name")
 
-                        # Si tiene nombre común, guardamos "Nombre (ID)". Si no, solo el ID.
+
                         if name:
                             display_text = f"{name} ({gene_id})"
                         else:
                             display_text = f"{gene_id}"
 
-                        # Lo metemos en una etiqueta de lista HTML
                         html_lines.append(f"<li>{display_text}</li>")
 
-                # El diccionario estructurado que necesita tu cliente.py de forma obligatoria
+
                 dic_gene_list = {
                     "chromosome": chromo,
                     "start": int(start),
@@ -262,16 +259,26 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if is_json:
                     contents = json.dumps(dic_gene_list)
                 else:
-                    # Si entras desde el navegador (no json), te dibuja la lista con los nombres e IDs
                     if html_lines:
                         contents = f"<h2>Genes found in region {chromo}:{start}-{end}:</h2><ul>" + "".join(
                             html_lines) + "</ul>"
                     else:
                         contents = f"<h2>No genes found in region {chromo}:{start}-{end}.</h2>"
+            else:
+                status = 404
+                contents = "Not Found"
+
         except Exception as e:
             status = 500
-            contents = f"Error: {str(e)}"
-        # ENVÍO CRÍTICO DE LA VARIABLE CONTENTS AL NAVEGADOR
+            contents = f"<html><body style='color: red;'><h2>An error has occurred</h2><p>{str(e)}</p></body></html>"
+        if status == 500:
+            content_type = "text/html"
+            import os
+            if os.path.exists("error.html"):
+                with open("error.html", "r", encoding="utf-8") as f:
+                    contents = f.read()
+        if status == 200 and (contents == "" or contents == "<ul></ul>"):
+            contents = "<h2>No data found. Please check if the species or parameters are correct.</h2>"
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.end_headers()
