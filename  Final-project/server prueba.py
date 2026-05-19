@@ -218,7 +218,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 )
 
                 # 8) ENDPOINT: GENE LIST (Desglose detallado de atributos de Ensembl)
-                elif path == "/geneList":
+            elif path == "/geneList":
                 chromo = arguments["chromo"][0]
                 start = arguments["start"][0]
                 end = arguments["end"][0]
@@ -261,7 +261,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 status = 404
                 contents = "Not Found"
 
-            except Exception as e:
+        except Exception as e:
             status = 500
             contents = f"Error: {str(e)}"
 
