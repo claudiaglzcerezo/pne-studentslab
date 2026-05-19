@@ -64,8 +64,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 for s in species_list:
                     text_specie = f"{s['display_name']} ({s['name']})"
                     names_list.append(text_specie)
+                if limit_param:
+                    limite_final = int(limit_param)
+                else:
+                    limite_final = total_species
                 dic_species = {
-                    "Limit": int(limit_param) if limit_param else total_species,
+                    "Limit": limite_final,
                     "names": names_list,
                     "num_species": total_species,
                 }
@@ -190,10 +194,16 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 count_t = clean_seq.count("T")
 
                 #porcentajes
-                pct_a = (count_a * 100) / total if total > 0 else 0
-                pct_c = (count_c * 100) / total if total > 0 else 0
-                pct_g = (count_g * 100) / total if total > 0 else 0
-                pct_t = (count_t * 100) / total if total > 0 else 0
+                if total > 0:
+                    pct_a = (count_a * 100) / total
+                    pct_c = (count_c * 100) / total
+                    pct_g = (count_g * 100) / total
+                    pct_t = (count_t * 100) / total
+                else:
+                    pct_a = 0
+                    pct_c = 0
+                    pct_g = 0
+                    pct_t = 0
 
                 dic_calc = {
                     "gene": gene,
