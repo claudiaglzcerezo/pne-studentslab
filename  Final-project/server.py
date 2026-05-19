@@ -247,45 +247,50 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"</ul>"
                     )
 
-            # 8) GENE LIST (SIN LA FUNCIÓN ISINSTANCE)
+
 
             elif path == "/geneList":
-                chromo = arguments["chromo"][0].strip()
-                start = arguments["start"][0].strip()
-                end = arguments["end"][0].strip()
+                chromo = arguments["chromo"][0]
+                start = arguments["start"][0]
+                end = arguments["end"][0]
 
-                genes_names = []
+                # Consultamos la API de Ensembl para la región en humanos
+                # Agregamos feature=gene para traer solo los genes de la región
+                ENDPOINT = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}{PARAMS}&feature=gene"
 
-                try:
-                    ENDPOINT = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}"
-                    query_params = "?feature=gene;content-type=application/json"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT)
+                response = conn.getresponse()
+                gene_data = json.loads(response.read().decode())
+                conn.close()
 
-                    conn = http.client.HTTPSConnection(SERVER)
-                    conn.request("GET", ENDPOINT + query_params)
-                    response = conn.getresponse()
-                    raw_response = response.read().decode()
-                    ensembl_data = json.loads(raw_response)
-                    conn.close()
+                # Extraemos los nombres de manera única sin usar dict.fromkeys
+                unique_genes = []
+                seen = set()
 
-                    for feature in ensembl_data:
-                        if feature["feature_type"] == "gene" and "external_name" in feature:
-                            genes_names.append(feature["external_name"])
-                except Exception:
-                    pass
+                for item in gene_data:
+                    # Obtenemos el nombre del gen (o el ID si no tiene nombre)
+                    name = item.get("external_name") or item.get("id")
 
-                # Sistema de seguridad anticaídas para asegurar contenido
-                if not genes_names:
-                    genes_names = ["FRAT1", "PURA", "NBN"]
+                    if name and name not in seen:
+                        seen.add(name)
+                        unique_genes.append(name)
 
-                # COMPROBACIÓN CRÍTICA PARA EL CLIENTE
+                dic_gene_list = {
+                    "chromosome": chromo,
+                    "start": start,
+                    "end": end,
+                    "genes": unique_genes,
+                }
+
                 if is_json:
-                    content_type = "application/json"
-                    contents = json.dumps(genes_names)  # Esto genera un JSON puro ['FRAT1', 'PURA'...]
+                    contents = json.dumps(dic_gene_list)
                 else:
-                    content_type = "text/html"
                     contents = (
-                            f"<h2>Return the names of the human genes that overlap a region (from the start position to the end) in the chromosome '{chromo}':</h2>"
-                            f"<ul>" + "".join([f"<li>{name}</li>" for name in genes_names]) + "</ul>"
+                            f"<h2>Genes in region {chromo}:{start}-{end}:</h2>"
+                            f"<ul>"
+                            + "".join([f"<li>{g}</li>" for g in unique_genes])
+                            + "</ul>"
                     )
         except Exception as e:
             status = 500
