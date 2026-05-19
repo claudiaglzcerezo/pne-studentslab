@@ -60,8 +60,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 total_species = len(species_list)
                 if limit_param:
                     species_list = species_list[: int(limit_param)]
-
-                names_list = [f"{s['display_name']} ({s['name']})" for s in species_list]
+                names_list = []
+                for s in species_list:
+                    text_specie = f"{s['display_name']} ({s['name']})"
+                    names_list.append(text_specie)
                 dic_species = {
                     "Limit": int(limit_param) if limit_param else total_species,
                     "names": names_list,
