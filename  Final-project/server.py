@@ -11,7 +11,7 @@ PARAMS = "?content-type=application/json"
 
 class TestHandler(http.server.BaseHTTPRequestHandler):
 
-    # FUNCIÓN INTERNA PARA OBTENER EL ID ESTABLE DE UN GEN
+    #ID ESTABLE DE UN GEN
     def get_id(self, arguments):
         try:
             gene_symbol = arguments["gene"][0]
@@ -25,14 +25,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
         except Exception:
             return None
 
-    # PROCESAMIENTO DE PETICIONES GET
     def do_GET(self):
         parsed_url = urllib.parse.urlparse(self.path)
         path = parsed_url.path
         arguments = urllib.parse.parse_qs(parsed_url.query)
         is_json = "json" in arguments
 
-        # PÁGINA DE INICIO (INDEX.HTML)
+        #index
         if path == "/":
             self.send_response(200)
             self.send_header("Content-Type", "text/html")
@@ -44,7 +43,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(bytes("<h1>Server Ready</h1>", "utf-8"))
             return
 
-        # ASIGNACIÓN DE VARIABLES DE SALIDA
         status = 200
         content_type = "application/json" if is_json else "text/html"
         contents = ""
@@ -137,7 +135,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 d = json.loads(conn.getresponse().read().decode())
                 conn.close()
 
-                # Extraemos los datos solicitados
+                # datos
                 start_val = int(d["start"])
                 end_val = int(d["end"])
                 length_val = end_val + 1 - start_val
@@ -189,7 +187,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 count_g = clean_seq.count("G")
                 count_t = clean_seq.count("T")
 
-                # Calculamos porcentajes
+                #porcentajes
                 pct_a = (count_a * 100) / total if total > 0 else 0
                 pct_c = (count_c * 100) / total if total > 0 else 0
                 pct_g = (count_g * 100) / total if total > 0 else 0
@@ -226,7 +224,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
                 gene_data = json.loads(conn.getresponse().read().decode())
                 conn.close()
-
                 unique_genes = []
                 html_lines = []
                 seen = set()
@@ -236,16 +233,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     if gene_id and gene_id not in seen:
                         seen.add(gene_id)
                         unique_genes.append(gene_id)
-
-
                         name = item.get("external_name")
-
-
                         if name:
                             display_text = f"{name} ({gene_id})"
                         else:
                             display_text = f"{gene_id}"
-
                         html_lines.append(f"<li>{display_text}</li>")
 
 

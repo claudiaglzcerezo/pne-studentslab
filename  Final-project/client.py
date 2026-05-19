@@ -6,7 +6,6 @@ SERVER = "localhost"
 PARAMS = "?json=1"
 
 
-# Función de ayuda para realizar peticiones HTTP de forma segura y limpia
 def make_request(path_with_params):
     try:
         conn = http.client.HTTPConnection(SERVER, PORT)
@@ -23,7 +22,6 @@ def make_request(path_with_params):
 
 print(f"\nConnecting to server: {SERVER}:{PORT}\n")
 
-# Ejecución secuencial y segura de peticiones limpiando la conexión en cada ciclo
 data1 = make_request(f"/listSpecies{PARAMS}&limit=10")
 data2 = make_request(f"/karyotype{PARAMS}&species=shrew-mouse")
 data3 = make_request(f"/chromosomeLength{PARAMS}&species=mouse&chromo=11")
@@ -33,10 +31,7 @@ data6 = make_request(f"/geneInfo{PARAMS}&gene=FRAT1")
 data7 = make_request(f"/geneCalc{PARAMS}&gene=FRAT1")
 data8 = make_request(f"/geneList{PARAMS}&chromo=9&start=22125500&end=22136000")
 
-print("\n========================")
 print("Basic Level Exercises")
-print("========================\n")
-
 print("--- 1) LIST OF SPECIES ---")
 d1 = json.loads(data1)
 print(f"Limit of species: {d1.get('Limit', 10)}")
@@ -46,8 +41,14 @@ print(f"Total number of species: {d1.get('num_species')}")
 
 print("\n--- 2) KARYOTYPE ---")
 l2 = json.loads(data2)
-for chromo in l2:
-    print(f"  - {chromo}")
+if l2:
+    for chromo in l2:
+        print(f"{chromo}")
+else:
+    print("  No karyotype data found for this species.")
+print("\n--- 3) CHROMOSOME LENGTH ---")
+d3 = json.loads(data3)
+print(f"The length of chromosome 11 for species mouse is: {d3.get('length')}")
 
 print("\n--- 4) ID OF A HUMAN GENE ---")
 d4 = json.loads(data4)
@@ -55,7 +56,7 @@ print(f"ID of gene {d4.get('gene')}: {d4.get('gene_id')}")
 
 print("\n--- 5) SEQUENCE OF A HUMAN GENE ---")
 d5 = json.loads(data5)
-print(f"Sequence of gene {d5.get('gene')}: {d5.get('seq')[:60]}...")  # Mostramos solo el inicio para no inundar la consola
+print(f"Sequence of gene {d5.get('gene')}: {d5.get('seq')[:60]}...")
 
 print("\n--- 6) INFORMATION ABOUT A HUMAN GENE ---")
 d6 = json.loads(data6)
