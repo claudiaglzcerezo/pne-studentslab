@@ -1,8 +1,8 @@
+import http.client
 import http.server
+import json
 import socketserver
 import urllib.parse
-import http.client
-import json
 
 PORT = 8080
 SERVER = "rest.ensembl.org"
@@ -44,15 +44,19 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 self.wfile.write(bytes(f.read(), "utf-8"))
             return
 
+        # SOLUCIÓN PARA PYCHARM: Inicializamos aquí para que el linter vea que se usan obligatoriamente abajo
+        status = 200
+        content_type = "application/json" if is_json else "text/html"
+        contents = "No data"
+
         try:
-            status = 200
-            contents = ""
-            content_type = "application/json" if is_json else "text/html"
             # #BASIC LEVEL
 
             # 1) LIST SPECIES
             if path == "/listSpecies":
-                limit_param = arguments["limit"][0] if "limit" in arguments else None
+                limit_param = (
+                    arguments["limit"][0] if "limit" in arguments else None
+                )
 
                 conn = http.client.HTTPSConnection(SERVER)
                 conn.request("GET", f"/info/species{PARAMS}")
@@ -63,20 +67,26 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 species_list = d["species"]
                 total_species = len(species_list)
                 if limit_param:
-                    species_list = species_list[:int(limit_param)]
+                    species_list = species_list[: int(limit_param)]
 
-                names_list = [f"{s['display_name']} ({s['name']})" for s in species_list]
+                names_list = [
+                    f"{s['display_name']} ({s['name']})" for s in species_list
+                ]
 
                 dic_species = {
                     "Limit": int(limit_param) if limit_param else total_species,
                     "names": names_list,
-                    "num_species": total_species
+                    "num_species": total_species,
                 }
 
                 if is_json:
                     contents = json.dumps(dic_species)
                 else:
-                    contents = "<ul>" + "".join([f"<li>{name}</li>" for name in names_list]) + "</ul>"
+                    contents = (
+                        "<ul>"
+                        + "".join([f"<li>{name}</li>" for name in names_list])
+                        + "</ul>"
+                    )
 
             # 2) KARYOTYPE
             elif path == "/karyotype":
@@ -92,10 +102,15 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if is_json:
                     contents = json.dumps(karyotype_data)
                 else:
-                    contents = f"<p>Chromosomes:</p><ul>" + "".join(
-                        [f"<li>Chromosome {c}</li>" for c in karyotype_data]) + "</ul>"
+                    contents = (
+                        f"<p>Chromosomes:</p><ul>"
+                        + "".join(
+                            [f"<li>Chromosome {c}</li>" for c in karyotype_data]
+                        )
+                        + "</ul>"
+                    )
 
-            # 3) CHROMOSOME LENGTH (CON BUCLE FOR SIN BREAK)
+            # 3) CHROMOSOME LENGTH
             elif path == "/chromosomeLength":
                 species = arguments["species"][0]
                 chromo = arguments["chromo"][0]
@@ -138,7 +153,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     raise Exception()
 
-            # 5) GENE SEQ (LONGITUD CON LEN)
+            # 5) GENE SEQ
             elif path == "/geneSeq":
                 gene = arguments["gene"][0].upper()
                 gene_id = self.get_id(arguments)
@@ -160,7 +175,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     contents = f"<textarea style='width:100%;height:150px;' readonly>{sequence}</textarea>"
 
-            # 6) GENE INFO (LONGITUD RESTANDO END + 1 - START)
+            # 6) GENE INFO
             elif path == "/geneInfo":
                 gene = arguments["gene"][0].upper()
                 gene_id = self.get_id(arguments)
@@ -181,7 +196,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     "length": int(d["end"]) + 1 - int(d["start"]),
                     "id": gene_id,
                     "gene": gene,
-                    "chromo": d["seq_region_name"]
+                    "chromo": d["seq_region_name"],
                 }
 
                 if is_json:
@@ -198,7 +213,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"</ul>"
                     )
 
-            # 7) GENE CALC (CORREGIDO SIN IMPORTAR RE)
+            # 7) GENE CALC
             elif path == "/geneCalc":
                 gene = arguments["gene"][0].upper()
                 gene_id = self.get_id(arguments)
@@ -214,7 +229,6 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 sequence = d["seq"]
 
-                # LIMPIAMOS LA SECUENCIA USANDO MÉTODOS NATIVOS DE STRING
                 clean_seq = "".join(sequence.split()).upper()
                 total = len(clean_seq)
 
@@ -222,7 +236,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     "A": clean_seq.count("A"),
                     "C": clean_seq.count("C"),
                     "G": clean_seq.count("G"),
-                    "T": clean_seq.count("T")
+                    "T": clean_seq.count("T"),
                 }
 
                 dic_calc = {"gene": gene, "length": total, "seq_count": counts}
@@ -245,15 +259,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"</ul>"
                     )
 
-
-
+            # 8) ENDPOINT: GENE LIST
             elif path == "/geneList":
                 chromo = arguments["chromo"][0]
                 start = arguments["start"][0]
                 end = arguments["end"][0]
 
-                # Consultamos la API de Ensembl para la región en humanos
-                # Agregamos feature=gene para traer solo los genes de la región
                 ENDPOINT = f"/overlap/region/homo_sapiens/{chromo}:{start}-{end}{PARAMS}&feature=gene"
 
                 conn = http.client.HTTPSConnection(SERVER)
@@ -262,14 +273,11 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 gene_data = json.loads(response.read().decode())
                 conn.close()
 
-                # Extraemos los nombres de manera única sin usar dict.fromkeys
                 unique_genes = []
                 seen = set()
 
                 for item in gene_data:
-                    # Obtenemos el nombre del gen (o el ID si no tiene nombre)
                     name = item.get("external_name") or item.get("id")
-
                     if name and name not in seen:
                         seen.add(name)
                         unique_genes.append(name)
@@ -285,25 +293,32 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     contents = json.dumps(dic_gene_list)
                 else:
                     contents = (
-                            f"<h2>Genes in region {chromo}:{start}-{end}:</h2>"
-                            f"<ul>"
-                            + "".join([f"<li>{g}</li>" for g in unique_genes])
-                            + "</ul>"
+                        f"<h2>Genes in region {chromo}:{start}-{end}:</h2>"
+                        f"<ul>"
+                        + "".join([f"<li>{g}</li>" for g in unique_genes])
+                        + "</ul>"
                     )
+
+            else:
+                status = 404
+                contents = "Endpoint not found"
+
         except Exception as e:
             status = 500
-            contents = f"<h1>Error detectado en el Servidor:</h1><p>{str(e)}</p>"
-            self.send_response(status)
-            self.send_header("Content-Type", "text/html")
-            self.end_headers()
-            self.wfile.write(bytes(contents, "utf-8"))
+            contents = f"Error processing the request: {str(e)}"
 
-        # GESTIÓN GLOBAL DE ERRORES (ERROR.HTML)
+        # Se envían los datos al cliente de manera unificada
+        self.send_response(status)
+        self.send_header("Content-Type", content_type)
+        self.end_headers()
+        self.wfile.write(bytes(contents, "utf-8"))
 
 
-# ARRANQUE DEL SERVIDOR
+# LEVANTAR EL SERVIDOR
 if __name__ == "__main__":
-    socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), TestHandler) as httpd:
-        print(f"Server online on port {PORT}...")
-        httpd.serve_forever()
+        print(f"Serving at port {PORT}")
+        try:
+            httpd.serve_forever()
+        except KeyboardInterrupt:
+            print("\nServer stopped.")
