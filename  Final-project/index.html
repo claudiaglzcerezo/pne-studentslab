@@ -11,9 +11,8 @@
     <h2 style="color: white;">BASIC Level Services</h2>
 
     <form action="/listSpecies" method="GET">
-        <label><b>1) List of species in the genome database</b></label><br><br>
-        Limit: <input type="number" name="limit" placeholder="e.g., 10"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>1) List of species in the genome database:</b></label><br><br>
+        Limit: <input type="number" name="limit" placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
@@ -21,58 +20,59 @@
 
     <form action="/karyotype" method="GET">
         <label><b>2) Information about the karyotype:</b></label><br><br>
-        Select the species: <input type="text" name="species" required placeholder="e.g., human"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        Select the species: <input type="text" name="species" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
     <br><br>
 
     <form action="/chromosomeLength" method="GET">
-        <label><b>3) Chromosome Length</b></label><br><br>
-        Select the species: <input type="text" name="species" required placeholder="e.g., mouse"><br><br>
-        Select a chromosome: <input type="text" name="chromo" required placeholder="e.g., 18"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>3) Return the length of a chromosome:</b></label><br><br>
+        Select the species: <input type="text" name="species" required placeholder><br><br>
+        Select a chromosome: <input type="text" name="chromo" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
-
-    <br><hr style = "border: 1px solid white "><br>
+    <br><hr style="border: 1px solid white"><br>
     <h2 style="color: white;">MEDIUM & ADVANCED Level Services</h2>
 
     <form action="/geneLookup" method="GET">
-        <label><b>4) Gene Stable ID Lookup</b></label><br><br>
-        Select a gene symbol: <input type="text" name="gene" required placeholder="e.g., FRAT1"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>1) Return the stable identifier of a human gene:</b></label><br><br>
+        Select a gene symbol: <input type="text" name="gene" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
     <br><br>
 
     <form action="/geneSeq" method="GET">
-        <label><b>5) Fetch Gene Sequence</b></label><br><br>
-        Select a gene symbol: <input type="text" name="gene" required placeholder="e.g., FRAT1"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>2) Return the sequence of a human gene:</b></label><br><br>
+        Select a gene symbol: <input type="text" name="gene" required placeholder"><br><br>
+        <input type="submit" value="Send">
+    </form>
+
+    <br><br>
+
+    <form action="/geneInfo" method="GET">
+        <label><b>3) Return information about a human gene:</b></label><br><br>
+        Select a gene symbol: <input type="text" name="gene" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
     <br><br>
 
     <form action="/geneCalc" method="GET">
-        <label><b>6) Gene Length & Base % Metrics</b></label><br><br>
-        Select a gene symbol: <input type="text" name="gene" required placeholder="e.g., FRAT1"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>4) Calculate percentage of nitrogenous bases for a gene:</b></label><br><br>
+        Select a gene symbol: <input type="text" name="gene" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
     <br><br>
 
     <form action="/geneList" method="GET">
-        <label><b>7) Overlapping Genes in Region</b></label><br><br>
-        Select a chromosome: <input type="text" name="chromo" required placeholder="e.g., 9"><br><br>
-        Start Coordinate: <input type="number" name="start" required placeholder="e.g., 22125500"><br><br>
-        End Coordinate: <input type="number" name="end" required placeholder="e.g., 22136000"><br><br>
-        <input type="checkbox" name="json" value="1"> Get response as JSON raw data<br><br>
+        <label><b>1) List of genes overlapping a genomic region:</b></label><br><br>
+        Select a chromosome: <input type="text" name="chromo" required placeholder><br><br>
+        Start Coordinate: <input type="number" name="start" required placeholder><br><br>
+        End Coordinate: <input type="number" name="end" required placeholder><br><br>
         <input type="submit" value="Send">
     </form>
 
