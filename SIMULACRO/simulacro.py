@@ -372,8 +372,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if not id1 or not id2:
                     raise Exception()
 
-                ENDPOINT1 = f"/lookup/id/{id1}{PARAMS}"
-                ENDPOINT2 = f"/lookup/id/{id2}{PARAMS}"
+                    # Asegúrate de concatenar o escribir directamente ?expand=1 al final de la URL
+                ENDPOINT1 = f"/lookup/id/{id1}?expand=1"
+                ENDPOINT2 = f"/lookup/id/{id2}?expand=1"
                 conn = http.client.HTTPSConnection(SERVER)
                 conn.request("GET", ENDPOINT1, headers={"Content-Type": "application/json"})
                 d1 = json.loads(conn.getresponse().read().decode())
@@ -385,23 +386,23 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if "error" in d1 or "error" in d2:
                     raise Exception()
                 name1 = d1.get("display_name", id1)
-                transcript1 = d1.get("Transcript")
+                transcript1 = d1.get("Transcript", [])
                 number_t1 = len(transcript1)
 
                 max_e1 = 0
                 for g in transcript1:
-                    exon1 = g.get("Exon")
+                    exon1 = g.get("Exon", [])
                     if max_e1 < len(exon1):
                         max_e1 = len(exon1)
 
 
                 name2 = d2.get("display_name", id2)
-                transcript2 = d2.get("Transcript")
+                transcript2 = d2.get("Transcript", [])
                 number_t2 = len(transcript2)
 
                 max_e2 = 0
                 for p in transcript2:
-                    exon2 = p.get("Exon")
+                    exon2 = p.get("Exon", [])
                     if max_e2 < len(exon2):
                         max_e2 = len(exon2)
 
@@ -416,7 +417,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 else:
                     winner = f"Both genes are equally complex, containing the same number of transcripts ({number_t1})."
 
-                with open("/compare_genes", "r", encoding="utf-8") as f:
+                with open("compare_genes.html", "r", encoding="utf-8") as f:
                     template = f.read()
 
                 contents = template.format(
@@ -428,6 +429,60 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     exon_g2=f"{max_e2}",
                     winner=f"{winner}"
                 )
+            #SIMULACRO GENE DISEASE
+            elif path == "/gene_diseases":
+                gene = arguments['gene'][0].strip()
+                limit = int(arguments['limit'][0].strip())
+                if not gene or not limit:
+                    raise Exception()
+                ENDPOINT = f"/phenotype/gene/homo_sapiens/{gene}?content-type=application/json"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
+                g = json.loads(conn.getresponse().read().decode())
+                conn.close()
+                if 'error' in g:
+                    raise Exception()
+
+                total = len(g)
+                if len(g) > limit:
+                    lst = g[0:limit]
+                else:
+                    lst = g
+
+                # Creamos 3 listas de Python vacías para guardar solo el texto limpio
+                lista_nombres = []
+                lista_ids = []
+                lista_fuentes = []
+
+                # Recorremos los datos con el while académico (sin usar break ni HTML)
+                count= 0
+                while count < limit and count < total:
+                    enfermedad = g[count]
+
+
+                    name_val = enfermedad.get('description', 'No description')
+                    id_val = enfermedad.get('id', 'No ID')
+                    source_val = enfermedad.get('source', 'Unknown')
+
+                    # Los añadimos limpios a nuestras listas de Python
+                    lista_nombres.append(name_val)
+                    lista_ids.append(id_val)
+                    lista_fuentes.append(source_val)
+
+                    count += 1
+                # 3. Abrimos tu plantilla externa
+                with open("gene_diseases.html", "r", encoding="utf-8") as f:
+                    template = f.read()
+
+                # 4. Le pasamos al HTML la lista ya recortada
+                contents = template.format(
+                    gene=gene,
+                    total=total,
+                    resultados=lst
+                )
+
+
+
 
 
 
