@@ -365,6 +365,72 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"<li><b>% T:</b> {pct_t:.2f}%</li>"
                         f"</ul>"
                     )
+            #EXAM MAY
+            elif path == "/compare_genes":
+                id1 = arguments["g1"][0].strip()
+                id2 = arguments["g2"][0].strip()
+                if not id1 or not id2:
+                    raise Exception()
+
+                ENDPOINT1 = f"/lookup/id/{id1}{PARAMS}"
+                ENDPOINT2 = f"/lookup/id/{id2}{PARAMS}"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT1, headers={"Content-Type": "application/json"})
+                d1 = json.loads(conn.getresponse().read().decode())
+
+                conn.request("GET", ENDPOINT2, headers={"Content-Type": "application/json"})
+                d2 = json.loads(conn.getresponse().read().decode())
+
+                conn.close()
+                if "error" in d1 or "error" in d2:
+                    raise Exception()
+                name1 = d1.get("display_name", id1)
+                transcript1 = d1.get("Transcript")
+                number_t1 = len(transcript1)
+
+                max_e1 = 0
+                for g in transcript1:
+                    exon1 = g.get("Exon")
+                    if max_e1 < len(exon1):
+                        max_e1 = len(exon1)
+
+
+                name2 = d2.get("display_name", id2)
+                transcript2 = d2.get("Transcript")
+                number_t2 = len(transcript2)
+
+                max_e2 = 0
+                for p in transcript2:
+                    exon2 = p.get("Exon")
+                    if max_e2 < len(exon2):
+                        max_e2 = len(exon2)
+
+
+
+                if number_t1 > number_t2:
+                    diff = number_t1 - number_t2
+                    winner = f"{name1} is more complex, containing {diff} more transcripts than {name2}."
+                elif number_t2 > number_t1:
+                    diff = number_t2 - number_t1
+                    winner = f"{name2} is more complex, containing {diff} more transcripts than {name1}."
+                else:
+                    winner = f"Both genes are equally complex, containing the same number of transcripts ({number_t1})."
+
+                with open("/compare_genes", "r", encoding="utf-8") as f:
+                    template = f.read()
+
+                contents = template.format(
+                    name_g1 = name1,
+                    lenght_g1=f"{number_t1}",
+                    exon_g1=f"{max_e1}",
+                    name_g2=name2,
+                    lenght_g2=f"{number_t2}",
+                    exon_g2=f"{max_e2}",
+                    winner=f"{winner}"
+                )
+
+
+
 
             # 8) ENDPOINT: GENE LIST
             elif path == "/geneList":
