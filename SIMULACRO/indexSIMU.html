@@ -84,5 +84,18 @@
         <input type="submit" value="Send">
     </form>
 
+    <h2>EXAM: Gene Structure Comparison</h2>
+    <form action="/compare_genes" method="GET">
+        <p>
+            <label for="g1">Ensembl Gene ID 1:</label>
+            <input type="text" id="g1" name="g1" placeholder="e.g., ENSG00000157764" required>
+        </p>
+        <p>
+            <label for="g2">Ensembl Gene ID 2:</label>
+            <input type="text" id="g2" name="g2" placeholder="e.g., ENSG00000133703" required>
+        </p>
+        <button type="submit">Compare Genes</button>
+    </form>
+
 </body>
 </html>
