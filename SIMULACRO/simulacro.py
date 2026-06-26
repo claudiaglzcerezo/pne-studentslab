@@ -600,6 +600,54 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         lst_f=lst_forward,
                         lst_r=lst_reverse
                     )
+            elif path == '/exon_density':
+                chr = arguments['chromo'][0].strip()
+                start = int(arguments["start"][0].strip())
+                end = int(arguments["end"][0].strip())
+                if not chr or not start or not end:
+                    raise Exception('Please fill the gaps')
+                ENDPOINT = f'/overlap/region/human/{chr}:{start}-{end}?feature=exon&content-type=application/json'
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
+                g = json.loads(conn.getresponse().read().decode())
+                conn.close()
+                if 'error' in g:
+                    raise Exception('Not valid URL')
+                length_lst = len(g)
+                count = 0
+                length_sum = 0
+                lst = []
+                while count < length_lst:
+                    exon = g[count]
+                    start1 = exon['start']
+                    end1 = exon['end']
+                    exon_id = exon.get('id')
+                    length_exon = end1 - start1 + 1
+                    m = exon.get('strand')
+                    if m == 1 and length_exon > 200:
+                        lst.append(exon_id)
+                        length_sum = length_sum + length_exon
+                    count = count + 1
+
+                    if len(lst) > 0:
+                        ptcj = length_sum / len(lst)
+                        ptj = round(ptcj, 2)
+                    else:
+                        ptj = 0.0
+
+                    with open('exon_density.html', 'r', encoding='utf-8') as f:
+                        template = f.read()
+
+                    contents = template.format(
+                        region=f"{chr}:{start}-{end}",
+                        count=len(lst),
+                        avg=ptj
+                        )
+
+
+
+
+
 
 
 
