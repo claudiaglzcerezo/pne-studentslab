@@ -108,6 +108,13 @@
         </p>
         <button type="submit">Study gene</button>
     </form>
+    <h2>Formulario de Homologías</h2>
+    <form action="/gene_homologies" method="GET">
+        <label><b>Obtain information about homologies</b></label><br><br>
+        Select a gene symbol: <input type="text" name="gene" required><br><br>
+        <p>Select a limit: <input type="number" name="limit" required></p>
+        <input type="submit" value="Send">
+    </form>
 
 
 </body>

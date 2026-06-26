@@ -365,6 +365,60 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                         f"<li><b>% T:</b> {pct_t:.2f}%</li>"
                         f"</ul>"
                     )
+
+            #EXAMEN PRUEBA 2
+            elif path == "/gene_homologies":
+                gene = arguments['gene'][0].strip()
+                limit_r = arguments['limit'][0].strip()
+                if not gene or not limit_r:
+                    raise Exception('Please enter a value')
+                limit = int(limit_r)
+                ENDPOINT = f"/homology/id/{gene}?content-type=application/json"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
+                d = json.loads(conn.getresponse().read().decode())
+                conn.close()
+                if 'error' in d:
+                    raise Exception()
+                homologies = d['data'][0]['homologies']
+
+                if len(homologies) > limit:
+                    m = homologies[0:limit]
+                else:
+                    m = homologies
+
+                lista_tipos = []
+                lista_especies = []
+                lista_ids = []
+
+                count = 0
+                while count < limit and count < len(m):
+                    # 1. Sacamos el animal que toca en esta vuelta (esto es un diccionario)
+                    homologo = m[count]
+                    # 2. Sacamos el tipo directamente de ese animal
+                    type_val = homologo.get('type', 'Unknown')
+                    # 3. Sacamos el diccionario 'target' directamente (sin bucles for)
+                    info = homologo.get('target', {})
+                    # 4. Extraemos los campos de dentro de 'info'
+                    name_val = info.get('species', 'Unknown')
+                    id_val = info.get('id', 'No ID')
+                    # 5. Los guardamos en nuestras listas limpias
+                    lista_tipos.append(type_val)
+                    lista_especies.append(name_val)
+                    lista_ids.append(id_val)
+                    count += 1
+                with open('gene_homologies.html', 'r', encoding='utf-8') as f:
+                    template = f.read()
+                    contents = template.format(
+                        types=lista_tipos,
+                        species=lista_especies,
+                        ids=lista_ids
+                    )
+
+
+
+
+
             #EXAM MAY
             elif path == "/compare_genes":
                 id1 = arguments["g1"][0].strip()
@@ -440,7 +494,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
                 g = json.loads(conn.getresponse().read().decode())
                 conn.close()
-                if 'error' in g:
+                if 'error' in g or not g.get('data'):
                     raise Exception()
 
                 total = len(g)
