@@ -108,6 +108,22 @@
         </p>
         <button type="submit">Study gene</button>
     </form>
+
+    <h2>EXAMEN D</h2>
+    <form action='/sequence_quality' method="GET">
+        <label><b> Calculate percentage of GC bases for a region:</b></label><br><br>
+        Select a gene region: <input type="text" name="region" required placeholder><br><br>
+        <input type="submit" value="Send">
+    </form>
+
+    <h2>EXAMEN E</h2>
+    <form action='/classify_genes' method="GET">
+        <label><b> Classification of genes between that region</b></label><br><br>
+        Select a gene region: <input type="text" name="region" required placeholder><br><br>
+        <input type="submit" value="Send">
+    </form>
+
+
     <h2>Formulario de Homologías</h2>
     <form action="/gene_homologies" method="GET">
         <label><b>Obtain information about homologies</b></label><br><br>

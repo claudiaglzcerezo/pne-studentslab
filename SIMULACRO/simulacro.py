@@ -535,8 +535,71 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                     resultados=lst
                 )
 
+            elif path == '/sequence_quality':
+                region = arguments['region'][0].strip()
+                if not region:
+                    raise Exception('Please enter a region')
+                ENDPOINT = f"/sequence/region/human/{region}?content-type=application/json"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
+                d = json.loads(conn.getresponse().read().decode())
+                conn.close()
+                if 'error' in d or not d:
+                    raise Exception('There must be a problem with the URL')
+                seq = d.get('seq')
+                total = len(seq)
 
+                countG = []
+                countC = []
+                count = 0
+                while count < total:
+                    base = seq[count]
+                    if base == 'G':
+                        countG.append(base)
+                    elif base == 'C':
+                        countC.append(base)
+                    count = count + 1
+                nG = len(countG)
+                nC = len(countC)
+                pctj = round((nG + nC) * 100 / total, 2)
 
+                with open('sequence_quality.html', 'r', encoding='utf-8') as f:
+                    template = f.read()
+                    contents = template.format(
+                        SeqLength= total,
+                        percentage=pctj
+                    )
+            elif path == '/classify_genes':
+                region = arguments['region'][0].strip()
+                if not region:
+                    raise Exception('Please enter a region')
+                ENDPOINT = f"/overlap/region/human/{region}?feature=gene&content-type=application/json"
+                conn = http.client.HTTPSConnection(SERVER)
+                conn.request("GET", ENDPOINT, headers={"Content-Type": "application/json"})
+                g = json.loads(conn.getresponse().read().decode())
+                conn.close()
+                if 'error' in g:
+                    raise Exception('The URL is not valid')
+                lngth_d = len(g)
+                count = 0
+                lst_reverse = []
+                lst_forward =  []
+                while lngth_d > count:
+                    m = g[count]
+                    name = m.get('external_name')
+                    strand = m.get('strand')
+                    if strand == 1:
+                        lst_forward.append(name)
+                    elif strand == -1:
+                        lst_reverse.append(name)
+                    count = count + 1
+
+                with open('classify_genes.html', 'r', encoding='utf-8') as f:
+                    template = f.read()
+                    contents = template.format(
+                        lst_f=lst_forward,
+                        lst_r=lst_reverse
+                    )
 
 
 
